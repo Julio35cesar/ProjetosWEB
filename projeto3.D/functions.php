@@ -6,7 +6,8 @@ function view($view, $data = []){
         $$key = $value;
     }
 
-    require "views/template/app.php";
+    require "views/template/app-livros.php";
+    require "views/template/app-produtos.php";
 
 }
 
