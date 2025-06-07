@@ -1,36 +1,56 @@
 <?php
-require_once 'model/Usuario.php';
+require_once __DIR__ . '/../model/Usuario.php';
 
-class LoginController {
-
-    public static function mostrarFormulario() {
-        include 'view/login.view.php';
+class LoginController
+{
+    // Exibe o formulário de login
+    public static function mostrarFormulario()
+    {
+        require __DIR__ . '/../view/login.view.php';
     }
 
-    public static function login() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = $_POST['usuario'] ?? '';
-            $senha = $_POST['senha'] ?? '';
+    // Processa o login enviado pelo formulário
+    public static function login()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
-            $user = Usuario::buscarPorUsuario($usuario);
+        $email = $_POST['usuario'] ?? '';
+        $senha = $_POST['senha'] ?? '';
 
-            if ($user && password_verify($senha, $user['senha'])) {
-                session_start();
-                $_SESSION['usuario'] = $user['usuario'];
-                $_SESSION['nome'] = $user['nome'];
+        // Tenta autenticar o usuário
+        $user = Usuario::autenticar($email, $senha);
+
+        if ($user) {
+            // Armazena dados do usuário na sessão
+            $_SESSION['usuario'] = $user['email'];
+            $_SESSION['nome'] = $user['nome'];
+            $_SESSION['tipo'] = $user['tipo'] ?? 'cliente';
+
+            // Redireciona conforme tipo do usuário
+            if ($_SESSION['tipo'] === 'admin') {
                 header('Location: ?rota=admin');
-                exit;
             } else {
-                $erro = "Usuário ou senha inválidos";
-                include 'view/login.view.php';
+                header('Location: ?rota=lista');
             }
+            exit;
+        } else {
+            // Login inválido: mostra mensagem de erro no formulário
+            $erro = "Usuário ou senha inválidos";
+            require __DIR__ . '/../view/login.view.php';
         }
     }
 
-    public static function logout() {
-        session_start();
+    // Finaliza a sessão do usuário (logout)
+    public static function logout()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         session_destroy();
-        header('Location: ?rota=login');
+        header('Location: ?rota=lista');
         exit;
     }
 }
