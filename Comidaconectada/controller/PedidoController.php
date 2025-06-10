@@ -8,24 +8,31 @@ class PedidoController
      */
     public static function finalizarPedido()
     {
+
+
         if (session_status() === PHP_SESSION_NONE) session_start();
 
         // Verifica se usuário está logado e carrinho não está vazio
-        if (!isset($_SESSION['usuario_id']) || empty($_SESSION['carrinho'])) {
+        if (!isset($_SESSION['usuario']) || empty($_SESSION['carrinho'])) {
             header('Location: ?rota=lista');
             exit;
         }
 
-        $id_usuario = $_SESSION['usuario_id'];
+
+
+        $id_usuario = $_SESSION['usuario'];
         $itens = $_SESSION['carrinho'];
         $data = date('Y-m-d H:i:s');
         $total = 0;
-
+        $ids = array_keys($itens);
+        $valorPedido = Prato::buscarPorIds($ids);
         // Calcula o total do pedido
-        foreach ($itens as $item) {
-            if (!isset($item['preco'], $item['quantidade']) || $item['quantidade'] <= 0) continue;
-            $total += $item['preco'] * $item['quantidade'];
+        foreach ($valorPedido as $item) {
+            
+            $total += $item['preco'];
+            
         }
+
 
         if ($total <= 0) {
             header('Location: ?rota=carrinho');

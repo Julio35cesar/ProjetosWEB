@@ -128,7 +128,7 @@ $aba = $_GET['aba'] ?? 'pratos';
         <?php elseif ($aba === 'usuarios'): ?>
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Usuários Cadastrados</h2>
-                <a href="?rota=formCadastrarUsuario" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">+ Novo Usuário</a>
+                <a href="?rota=login" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">+ Novo Usuário</a>
             </div>
 
             <?php if (empty($usuarios)): ?>

@@ -24,7 +24,7 @@
             </ul>
             <p class="mb-6 font-semibold">Total: R$ <?= number_format($total, 2, ',', '.') ?></p>
 
-            <form action="?rota=finalizarPedido" method="post" class="space-y-4">
+            <form action="?rota=finalizar_pedido" method="post" class="space-y-4">
                 <label class="block">
                     <span class="font-semibold">Nome Completo:</span>
                     <input type="text" name="nome_cliente" required class="w-full border rounded px-3 py-2" />

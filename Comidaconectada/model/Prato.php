@@ -44,7 +44,7 @@ class Prato {
     public static function buscarPorId($id) {
         $db = DB::conectar();
         $stmt = $db->prepare("SELECT * FROM pratos WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt->execute($id);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 

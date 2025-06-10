@@ -9,10 +9,10 @@
 <body class="bg-gray-100 min-h-screen">
 
     <!-- Cabeçalho -->
-    <header class="flex justify-between items-center bg-white shadow-md p-4">
-        <h1 class="text-2xl font-bold text-blue-700">Painel Administrativo</h1>
+    <header class="flex justifyext-blue-700">Painel Administrativo</h1>
         <div class="flex gap-4">
-            <a href="?rota=logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Sair</a>
+            <a href="?rota=logout" -between items-center bg-white shadow-md p-4">
+        <h1 class="text-2xl font-bold tclass="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Sair</a>
             <a href="?rota=home" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Ver Cardápio</a>
         </div>
     </header>

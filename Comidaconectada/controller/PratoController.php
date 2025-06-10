@@ -1,16 +1,19 @@
 <?php
 require_once __DIR__ . '/../model/Prato.php';
 
-class PratoController {
+class PratoController
+{
 
     // Exibe o painel administrativo com todos os pratos
-    public static function admin() {
+    public static function admin()
+    {
         $pratos = Prato::listarTodos();
         include __DIR__ . '/../view/admin.view.php';
     }
 
     // Exibe o formulário para editar um prato existente
-    public static function formularioEdicao() {
+    public static function formularioEdicao()
+    {
         if (!isset($_GET['id'])) {
             header('Location: ?rota=admin');
             exit;
@@ -28,13 +31,15 @@ class PratoController {
     }
 
     // Exibe o formulário para adicionar um novo prato
-    public static function formularioAdicionar() {
+    public static function formularioAdicionar()
+    {
         // Apenas inclui a view do formulário de adicionar prato
         include __DIR__ . '/../view/adicionar.view.php';
     }
 
     // Salva um novo prato no banco de dados
-    public static function salvar() {
+    public static function salvar()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nome = $_POST['nome'] ?? '';
             $descricao = $_POST['descricao'] ?? '';
@@ -47,7 +52,7 @@ class PratoController {
                 $tmpName = $_FILES['imagem']['tmp_name'];
                 $originalName = basename($_FILES['imagem']['name']);
                 $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-                $allowed = ['jpg','jpeg','png','gif'];
+                $allowed = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (in_array(strtolower($ext), $allowed)) {
                     $novoNome = uniqid() . '.' . $ext;
@@ -68,7 +73,8 @@ class PratoController {
     }
 
     // Exclui um prato pelo ID
-    public static function excluir() {
+    public static function excluir()
+    {
         if (!isset($_GET['id'])) {
             header('Location: ?rota=admin');
             exit;
@@ -93,7 +99,8 @@ class PratoController {
     }
 
     // Edita os dados de um prato existente
-    public static function editar() {
+    public static function editar()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id'] ?? 0);
             $nome = $_POST['nome'] ?? '';
@@ -107,7 +114,7 @@ class PratoController {
                 $tmpName = $_FILES['imagem']['tmp_name'];
                 $originalName = basename($_FILES['imagem']['name']);
                 $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-                $allowed = ['jpg','jpeg','png','gif'];
+                $allowed = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (in_array(strtolower($ext), $allowed)) {
                     $novoNome = uniqid() . '.' . $ext;
@@ -141,7 +148,8 @@ class PratoController {
     }
 
     // Lista os pratos para o público (cardápio)
-    public static function listar() {
+    public static function listar()
+    {
         $pratos = Prato::listarTodos();
         include __DIR__ . '/../view/index.view.php';
     }

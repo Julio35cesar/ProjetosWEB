@@ -6,12 +6,9 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../model/Prato.php';
 
 $carrinho = $_SESSION['carrinho'] ?? [];
-// $carrinho espera formato:
-// [
-//   id_prato => ['quantidade' => int, 'observacao' => string]
-// ]
 
-// Se for um array simples (id => quantidade), adapte conforme necessário.
+// $carrinho espera formato:
+// [ id_prato => ['quantidade' => int, 'observacao' => string] ]
 
 $ids = array_keys($carrinho);
 $pratos = Prato::buscarPorIds($ids);
@@ -37,7 +34,7 @@ $pratos = Prato::buscarPorIds($ids);
         <?php if (empty($carrinho)): ?>
             <p class="text-center text-gray-600 text-lg mt-10">Seu carrinho está vazio.</p>
         <?php else: ?>
-            <form action="atualizarCarrinho" method="POST" class="bg-white shadow-md rounded-lg p-6">
+            <form action="?rota=AtualizarCarrinho" method="POST" class="bg-white shadow-md rounded-lg p-6">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-200 text-gray-700">
                         <tr>
@@ -61,7 +58,9 @@ $pratos = Prato::buscarPorIds($ids);
                             $total += $subtotal;
                         ?>
                         <tr class="border-b hover:bg-yellow-100">
-                            <td class="p-3 align-top font-semibold text-gray-800"><?= htmlspecialchars($prato['nome']) ?></td>
+                            <td class="p-3 align-top font-semibold text-gray-800">
+                                <?= htmlspecialchars($prato['nome']) ?>
+                            </td>
 
                             <td class="p-3 align-top">
                                 <input 
@@ -83,9 +82,13 @@ $pratos = Prato::buscarPorIds($ids);
                                 />
                             </td>
 
-                            <td class="p-3 align-top text-right">R$ <?= number_format($prato['preco'], 2, ',', '.') ?></td>
+                            <td class="p-3 align-top text-right">
+                                R$ <?= number_format($prato['preco'], 2, ',', '.') ?>
+                            </td>
 
-                            <td class="p-3 align-top text-right font-semibold">R$ <?= number_format($subtotal, 2, ',', '.') ?></td>
+                            <td class="p-3 align-top text-right font-semibold">
+                                R$ <?= number_format($subtotal, 2, ',', '.') ?>
+                            </td>
 
                             <td class="p-3 align-top text-center">
                                 <a 
@@ -100,22 +103,27 @@ $pratos = Prato::buscarPorIds($ids);
                     <tfoot>
                         <tr class="bg-gray-100 font-bold text-gray-700">
                             <td colspan="4" class="p-3 text-right">Total:</td>
-                            <td colspan="2" class="p-3 text-right">R$ <?= number_format($total, 2, ',', '.') ?></td>
+                            <td colspan="2" class="p-3 text-right">
+                                R$ <?= number_format($total, 2, ',', '.') ?>
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
 
                 <div class="mt-6 flex justify-between flex-wrap gap-3">
-                    <a href="?rota=lista" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded">Continuar Comprando</a>
+                    <a href="?rota=lista" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded">
+                        Continuar Comprando
+                    </a>
                     <div class="flex gap-3">
                         <button 
                           type="submit" 
                           class="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded"
-                          title="Atualizar quantidades e observações"
                         >
-                          Atualizar Carrinho
+                            Atualizar Carrinho
                         </button>
-                        <a href="?rota=finalizarPedido" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded">Finalizar Pedido</a>
+                        <a href="?rota=finalizar_pedido" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded">
+                            Finalizar Pedido
+                        </a>
                     </div>
                 </div>
             </form>

@@ -35,6 +35,7 @@ class CarrinhoController {
     public static function verCarrinho() {
         $carrinho = $_SESSION['carrinho'] ?? [];
         $ids = array_keys($carrinho);
+
         $pratos = [];
 
         if (!empty($ids)) {

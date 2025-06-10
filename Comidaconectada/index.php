@@ -11,19 +11,22 @@ require_once 'controller/PratoController.php';
 require_once 'controller/LoginController.php';
 require_once 'controller/CadastroController.php';
 require_once 'controller/CarrinhoController.php';
-require_once 'controller/PedidoController.php';
+require_once 'controller/AtualizarCarrinhoController.php';
+require_once 'controller/AdminController.php';
+require_once 'controller/PedidoController.php'; // <-- Certifique-se de ter isso incluído
 
 // Define a rota atual (padrão: 'lista')
 $rota = $_GET['rota'] ?? 'lista';
 
-// Lista de rotas válidas do sistema (adicionei 'formAdicionar' aqui)
+// Lista de rotas válidas do sistema
 $rotasValidas = [
+    'adicionar',
     'lista',
     'admin',
     'salvar',
     'excluir',
     'formEditar',
-    'formAdicionar',      // Rota para mostrar formulário de adicionar prato
+    'formAdicionar',
     'editar',
     'login',
     'logout',
@@ -31,26 +34,28 @@ $rotasValidas = [
     'adicionarCarrinho',
     'carrinho',
     'removerCarrinho',
-    'finalizarPedido',
+    'atualizar_carrinho',     // <-- Corrigido nome da rota
+    'finalizar_pedido',
     'meus_pedidos',
     'pedidos_admin',
     'responder_pedido'
 ];
 
-// Redireciona para a página inicial se rota for inválida
+// Redireciona para a página inicial se a rota for inválida
 if (!in_array($rota, $rotasValidas)) {
     header('Location: ?rota=lista');
     exit;
 }
 
-// Rotas que exigem autenticação de administrador (adicionei 'formAdicionar')
+// Rotas que exigem autenticação de administrador
 $rotasAdmin = [
+    'adicionar',
     'admin',
     'salvar',
     'excluir',
     'editar',
     'formEditar',
-    'formAdicionar',      // Só admin pode acessar o formulário para adicionar prato
+    'formAdicionar',
     'pedidos_admin',
     'responder_pedido'
 ];
@@ -63,23 +68,19 @@ if (in_array($rota, $rotasAdmin)) {
     }
 }
 
-// Define o header UTF-8 (boa prática)
+// Define o header UTF-8
 header('Content-Type: text/html; charset=utf-8');
 
 // Roteador de ações
 switch ($rota) {
-
-    // Página principal (cardápio)
     case 'lista':
         PratoController::listar();
         break;
 
-    // Área administrativa
     case 'admin':
         PratoController::admin();
         break;
 
-    // Formulário para adicionar prato
     case 'formAdicionar':
         PratoController::formularioAdicionar();
         break;
@@ -100,7 +101,6 @@ switch ($rota) {
         PratoController::editar();
         break;
 
-    // Login e logout
     case 'login':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             LoginController::login();
@@ -113,7 +113,6 @@ switch ($rota) {
         LoginController::logout();
         break;
 
-    // Cadastro de novo usuário
     case 'cadastro':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             CadastroController::cadastrar();
@@ -122,7 +121,6 @@ switch ($rota) {
         }
         break;
 
-    // Carrinho de compras
     case 'adicionarCarrinho':
         CarrinhoController::adicionar();
         break;
@@ -135,8 +133,11 @@ switch ($rota) {
         CarrinhoController::remover();
         break;
 
-    // Pedidos
-    case 'finalizarPedido':
+    case 'atualizar_carrinho':
+        AtualizarCarrinhoController::atualizar();
+        break;
+
+    case 'finalizar_pedido':
         PedidoController::finalizarPedido();
         break;
 
@@ -151,11 +152,6 @@ switch ($rota) {
     case 'responder_pedido':
         PedidoController::responder();
         break;
-        
-    case 'atualizar_carrinho':
-        AtualizarCarrinhoController::atualizar();
-        break;
-
 
     default:
         echo "Página não encontrada.";

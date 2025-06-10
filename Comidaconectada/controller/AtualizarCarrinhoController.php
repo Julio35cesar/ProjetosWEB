@@ -7,37 +7,35 @@ class AtualizarCarrinhoController
             session_start();
         }
 
-        // Verifica se o carrinho existe na sessão
+        // Garante que o carrinho está na sessão
         if (!isset($_SESSION['carrinho'])) {
             $_SESSION['carrinho'] = [];
         }
 
-        // Espera dados via POST: id do item, nova quantidade e observação
-        $id_item = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $quantidade = filter_input(INPUT_POST, 'quantidade', FILTER_VALIDATE_INT);
-        $observacao = filter_input(INPUT_POST, 'observacao', FILTER_SANITIZE_STRING);
+        // Recebe arrays do formulário
+        $quantidades = $_POST['quantidade'] ?? [];
+        $observacoes = $_POST['observacao'] ?? [];
 
-        if ($id_item === false || $quantidade === false || $quantidade < 0) {
-            // Dados inválidos - redireciona ou mostra erro
-            header('Location: ?rota=carrinho');
-            exit;
-        }
+        foreach ($quantidades as $id => $qtd) {
+            $id = (int)$id;
+            $qtd = (int)$qtd;
 
-        // Atualiza ou remove item do carrinho
-        if ($quantidade === 0) {
-            // Remove o item do carrinho
-            if (isset($_SESSION['carrinho'][$id_item])) {
-                unset($_SESSION['carrinho'][$id_item]);
-            }
-        } else {
-            // Atualiza quantidade e observação
-            if (isset($_SESSION['carrinho'][$id_item])) {
-                $_SESSION['carrinho'][$id_item]['quantidade'] = $quantidade;
-                $_SESSION['carrinho'][$id_item]['observacao'] = $observacao;
+            // Sanitize observação correspondente
+            $obs = isset($observacoes[$id]) ? filter_var($observacoes[$id], FILTER_SANITIZE_STRING) : '';
+
+            if ($qtd < 1) {
+                // Se quantidade inválida ou zero, remove do carrinho
+                unset($_SESSION['carrinho'][$id]);
+            } else {
+                // Atualiza ou adiciona o item com quantidade e observação
+                $_SESSION['carrinho'][$id] = [
+                    'quantidade' => $qtd,
+                    'observacao' => $obs
+                ];
             }
         }
 
-        // Redireciona para a página do carrinho após atualizar
+        // Redireciona de volta ao carrinho
         header('Location: ?rota=carrinho');
         exit;
     }

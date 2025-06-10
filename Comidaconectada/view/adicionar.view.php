@@ -61,16 +61,17 @@
                 >
                     <option value="">Selecione</option>
                     <option value="Entrada">Entrada</option>
-                    <option value="Prato Principal">Prato Principal</option>
+                    <option value="Prato">Prato</option>
                     <option value="Sobremesa">Sobremesa</option>
                     <option value="Bebida">Bebida</option>
+                    <option value="vegano">vegano</option>
                 </select>
             </div>
 
             <!-- Imagem -->
             <div>
                 <label for="imagem" class="block font-semibold text-gray-700 mb-1">Imagem do Prato:</label>
-                <input
+                <input  
                     type="file"
                     id="imagem"
                     name="imagem"
