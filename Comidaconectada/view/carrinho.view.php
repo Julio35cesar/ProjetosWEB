@@ -6,10 +6,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../model/Prato.php';
 
 $carrinho = $_SESSION['carrinho'] ?? [];
-
-// $carrinho espera formato:
-// [ id_prato => ['quantidade' => int, 'observacao' => string] ]
-
 $ids = array_keys($carrinho);
 $pratos = Prato::buscarPorIds($ids);
 ?>
@@ -23,13 +19,11 @@ $pratos = Prato::buscarPorIds($ids);
 </head>
 <body class="bg-yellow-50 min-h-screen">
 
-    <!-- Cabeçalho -->
     <header class="flex justify-between items-center bg-white shadow-md p-4">
         <h1 class="text-2xl font-bold text-blue-700">🛒 Seu Carrinho</h1>
         <a href="?rota=lista" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Voltar ao Cardápio</a>
     </header>
 
-    <!-- Conteúdo -->
     <main class="max-w-5xl mx-auto p-6">
         <?php if (empty($carrinho)): ?>
             <p class="text-center text-gray-600 text-lg mt-10">Seu carrinho está vazio.</p>
@@ -63,13 +57,18 @@ $pratos = Prato::buscarPorIds($ids);
                             </td>
 
                             <td class="p-3 align-top">
-                                <input 
-                                    type="number" 
-                                    name="quantidade[<?= $id ?>]" 
-                                    value="<?= $quantidade ?>" 
-                                    min="1" 
-                                    class="w-16 border rounded px-2 py-1 text-center"
-                                />
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="alterarQuantidade(<?= $id ?>, -1)" class="px-3 py-1 bg-gray-200 rounded">−</button>
+                                    <input 
+                                        type="number" 
+                                        name="quantidade[<?= $id ?>]" 
+                                        id="quantidade-<?= $id ?>" 
+                                        value="<?= $quantidade ?>" 
+                                        min="1" 
+                                        class="w-16 text-center border rounded px-2 py-1"
+                                    />
+                                    <button type="button" onclick="alterarQuantidade(<?= $id ?>, 1)" class="px-3 py-1 bg-gray-200 rounded">+</button>
+                                </div>
                             </td>
 
                             <td class="p-3 align-top">
@@ -92,9 +91,9 @@ $pratos = Prato::buscarPorIds($ids);
 
                             <td class="p-3 align-top text-center">
                                 <a 
-                                  href="?rota=removerCarrinho&id=<?= $id ?>" 
-                                  class="text-red-600 hover:underline"
-                                  onclick="return confirm('Remover este item do carrinho?');"
+                                    href="?rota=removerCarrinho&id=<?= $id ?>" 
+                                    class="text-red-600 hover:underline"
+                                    onclick="return confirm('Remover este item do carrinho?');"
                                 >Remover</a>
                             </td>
                         </tr>
@@ -116,8 +115,8 @@ $pratos = Prato::buscarPorIds($ids);
                     </a>
                     <div class="flex gap-3">
                         <button 
-                          type="submit" 
-                          class="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded"
+                            type="submit" 
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded"
                         >
                             Atualizar Carrinho
                         </button>
@@ -129,6 +128,17 @@ $pratos = Prato::buscarPorIds($ids);
             </form>
         <?php endif; ?>
     </main>
+
+    <!-- Script para alterar quantidade -->
+    <script>
+        function alterarQuantidade(id, delta) {
+            const input = document.getElementById('quantidade-' + id);
+            let valor = parseInt(input.value) || 1;
+            valor += delta;
+            if (valor < 1) valor = 1;
+            input.value = valor;
+        }
+    </script>
 
 </body>
 </html>

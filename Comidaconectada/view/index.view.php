@@ -14,7 +14,10 @@
         <div class="flex items-center gap-4">
             <?php if (isset($_SESSION['nome'])): ?>
                 <span class="text-sm text-gray-700">Olá, <strong><?= htmlspecialchars($_SESSION['nome']) ?></strong></span>
+                
+                <a href="?rota=meus_pedidos" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Meus Pedidos</a>
                 <a href="?rota=logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Sair</a>
+
                 <?php if ($_SESSION['tipo'] === 'admin'): ?>
                     <a href="?rota=admin" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Admin</a>
                 <?php endif; ?>
@@ -26,7 +29,6 @@
 
     <!-- Conteúdo principal -->
     <main class="max-w-6xl mx-auto p-6">
-
         <h2 class="text-3xl font-semibold text-center mb-6 text-gray-800">Nosso Cardápio</h2>
 
         <!-- Barra de pesquisa -->
@@ -133,7 +135,7 @@
             document.getElementById('modalDetalhes').classList.add('hidden');
         }
 
-        // Função para adicionar ao carrinho via GET (ou você pode usar fetch/ajax)
+        // Adicionar ao carrinho via GET
         document.getElementById('btnAdicionarCarrinho').addEventListener('click', () => {
             const quantidade = parseInt(document.getElementById('quantidade').value);
             const observacao = document.getElementById('observacao').value.trim();
@@ -141,27 +143,19 @@
             if (!pratoSelecionado) return alert('Nenhum prato selecionado');
             if (quantidade < 1) return alert('Informe uma quantidade válida');
 
-            // Construir URL para adicionar ao carrinho
-            // Passando id, quantidade e observação via query params (melhor passar POST, mas simplificamos)
             const url = `?rota=adicionarCarrinho&id=${pratoSelecionado.id}&quantidade=${quantidade}&observacao=${encodeURIComponent(observacao)}`;
-
-            // Redireciona para a rota que adiciona no carrinho (backend deve tratar)
             window.location.href = url;
         });
 
-        // Função de filtro simples por categoria
+        // Filtrar por categoria
         function filtrarCategoria(cat) {
             const cards = document.querySelectorAll('.produto-card');
             cards.forEach(card => {
-                if (cat === 'todos' || card.classList.contains(cat)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = (cat === 'todos' || card.classList.contains(cat)) ? 'block' : 'none';
             });
         }
 
-        // Função de busca simples (filtra pelo nome)
+        // Buscar por nome
         function pesquisarPratos() {
             const filtro = document.getElementById('pesquisa').value.toLowerCase();
             const cards = document.querySelectorAll('.produto-card');

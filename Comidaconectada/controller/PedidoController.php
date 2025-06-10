@@ -1,45 +1,59 @@
 <?php
 require_once __DIR__ . '/../model/Pedido.php';
+require_once __DIR__ . '/../model/Usuario.php';
+require_once __DIR__ . '/../model/Prato.php';
 
 class PedidoController
 {
-    /**
-     * Finaliza o pedido do cliente logado, salva no banco e limpa o carrinho
-     */
+    // Função auxiliar para garantir ID do usuário a partir de ID ou email
+    private static function obterIdUsuario($usuarioSessao)
+    {
+        if (is_int($usuarioSessao)) {
+            return $usuarioSessao;
+        }
+
+        if (filter_var($usuarioSessao, FILTER_VALIDATE_EMAIL)) {
+            $usuario = Usuario::buscarPorEmail($usuarioSessao);
+            if ($usuario && isset($usuario['id'])) {
+                return $usuario['id'];
+            }
+        }
+
+        return null; // Não conseguiu identificar usuário válido
+    }
+
     public static function finalizarPedido()
     {
-
-
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        // Verifica se usuário está logado e carrinho não está vazio
         if (!isset($_SESSION['usuario']) || empty($_SESSION['carrinho'])) {
             header('Location: ?rota=lista');
             exit;
         }
 
+        $id_usuario = self::obterIdUsuario($_SESSION['usuario']);
+        if (!$id_usuario) {
+            exit("Usuário inválido.");
+        }
 
-
-        $id_usuario = $_SESSION['usuario'];
         $itens = $_SESSION['carrinho'];
         $data = date('Y-m-d H:i:s');
         $total = 0;
+
         $ids = array_keys($itens);
         $valorPedido = Prato::buscarPorIds($ids);
-        // Calcula o total do pedido
-        foreach ($valorPedido as $item) {
-            
-            $total += $item['preco'];
-            
-        }
 
+        foreach ($valorPedido as $item) {
+            $id = $item['id'];
+            $quantidade = $itens[$id]['quantidade'] ?? 1;
+            $total += $item['preco'] * $quantidade;
+        }
 
         if ($total <= 0) {
             header('Location: ?rota=carrinho');
             exit;
         }
 
-        // Cria o pedido com status "finalizado"
         $pedido_id = Pedido::criar($id_usuario, $data, 'finalizado', $total);
 
         if (!$pedido_id) {
@@ -48,42 +62,38 @@ class PedidoController
             exit;
         }
 
-        // Adiciona os itens do pedido
         foreach ($itens as $item) {
             $id_prato = $item['id'] ?? null;
             $quantidade = $item['quantidade'] ?? 0;
             $observacao = $item['observacao'] ?? '';
             $preco = $item['preco'] ?? 0;
 
-            if (!$id_prato || $quantidade <= 0 || $preco <= 0) continue;
-
-            Pedido::adicionarItem($pedido_id, $id_prato, $quantidade, $observacao, $preco);
+            if ($id_prato && $quantidade > 0 && $preco > 0) {
+                Pedido::adicionarItem($pedido_id, $id_prato, $quantidade, $observacao, $preco);
+            }
         }
 
-        // Limpa o carrinho da sessão
         unset($_SESSION['carrinho']);
-
-        // Redireciona para os pedidos do cliente
         header("Location: ?rota=meus_pedidos");
         exit;
     }
 
-    /**
-     * Exibe os pedidos do cliente logado
-     */
     public static function meusPedidos()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        if (!isset($_SESSION['usuario_id'])) {
+        if (!isset($_SESSION['usuario'])) {
             header('Location: ?rota=login');
             exit;
         }
 
-        // Busca os pedidos do usuário logado
-        $pedidos = Pedido::buscarPorUsuario($_SESSION['usuario_id']);
+        $id_usuario = self::obterIdUsuario($_SESSION['usuario']);
+        if (!$id_usuario) {
+            exit("Usuário inválido.");
+        }
 
-        // Adiciona os itens de cada pedido
+        $pedidos = Pedido::buscarPorUsuario($id_usuario);
+
         foreach ($pedidos as &$pedido) {
             $pedido['itens'] = Pedido::buscarItens($pedido['id']);
         }
@@ -91,28 +101,20 @@ class PedidoController
         require __DIR__ . '/../view/pedidos_cliente.view.php';
     }
 
-    /**
-     * Exibe todos os pedidos para o painel do administrador
-     */
     public static function listarTodos()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        // Verifica se o usuário é administrador
         if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'admin') {
             header('Location: ?rota=login');
             exit;
         }
 
-        // Lista todos os pedidos com itens e dados do cliente
         $pedidos = Pedido::listarTodosComItensEUsuario();
 
         require __DIR__ . '/../view/pedidos_admin.view.php';
     }
 
-    /**
-     * Atualiza o status e resposta de um pedido (apenas admin)
-     */
     public static function responder()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -125,10 +127,8 @@ class PedidoController
                 exit;
             }
 
-            // Atualiza o status do pedido
             Pedido::atualizarStatus($id, $novo_status);
 
-            // Atualiza a resposta do admin (mensagem para o cliente)
             if ($resposta_admin !== null) {
                 Pedido::atualizarResposta($id, $resposta_admin);
             }

@@ -23,8 +23,11 @@ class LoginController
         $user = Usuario::autenticar($email, $senha);
 
         if ($user) {
-            // Armazena dados do usuário na sessão
-            $_SESSION['usuario'] = $user['email'];
+            // ✅ Armazena o ID do usuário na sessão (correção importante)
+            $_SESSION['usuario'] = $user['id'];       // usado em PedidoController
+            $_SESSION['usuario_id'] = $user['id'];    // usado em meusPedidos()
+
+            // Dados adicionais (opcional)
             $_SESSION['nome'] = $user['nome'];
             $_SESSION['tipo'] = $user['tipo'] ?? 'cliente';
 

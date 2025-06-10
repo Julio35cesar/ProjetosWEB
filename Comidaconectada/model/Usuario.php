@@ -42,8 +42,7 @@ class Usuario {
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($usuario && password_verify($senha, $usuario['senha'])) {
-            // Remove a senha do array por segurança antes de retornar
-            unset($usuario['senha']);
+            unset($usuario['senha']); // Remove senha por segurança
             return $usuario;
         }
 
@@ -60,6 +59,20 @@ class Usuario {
         $stmt = $db->prepare("SELECT id, nome, email, tipo FROM usuarios WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Busca usuário pelo e-mail.
+     * @param string $email
+     * @return array|null - dados do usuário ou null se não encontrado
+     */
+    public static function buscarPorEmail(string $email): ?array {
+        $db = DB::conectar();
+        $stmt = $db->prepare("SELECT id, nome, email, tipo FROM usuarios WHERE email = ?");
+        $stmt->execute([$email]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $usuario ?: null;
     }
 
     /**

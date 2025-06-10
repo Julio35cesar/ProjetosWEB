@@ -77,7 +77,7 @@ class Pedido {
 
         // Adiciona os itens a cada pedido
         foreach ($pedidos as &$pedido) {
-            $pedido['itens'] = self::buscarItens($pedido['id']);
+            $pedido['itens'] = self::buscarItens((int)$pedido['id']);
         }
 
         return $pedidos;
