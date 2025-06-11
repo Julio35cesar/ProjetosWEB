@@ -4,7 +4,7 @@ require_once 'DB.php';
 class Prato {
 
     /**
-     * Lista todos os pratos ordenados por nome
+     * Lista todos os pratos ordenados por nome.
      * @return array
      */
     public static function listarTodos(): array {
@@ -14,23 +14,26 @@ class Prato {
     }
 
     /**
-     * Adiciona um novo prato
-     * @param string $nome
-     * @param string $descricao
-     * @param float $preco
-     * @param string $imagem
-     * @param string $categoria
+     * Adiciona um novo prato ao banco de dados.
+     * @param array $dados Associativo com keys: nome, descricao, preco, categoria, imagem
      * @return bool
      */
-    public static function adicionar(string $nome, string $descricao, float $preco, string $imagem, string $categoria): bool {
+    public function inserir(array $dados): bool {
         $db = DB::conectar();
-        $sql = "INSERT INTO pratos (nome, descricao, preco, imagem, categoria) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO pratos (nome, descricao, preco, categoria, imagem)
+                VALUES (:nome, :descricao, :preco, :categoria, :imagem)";
         $stmt = $db->prepare($sql);
-        return $stmt->execute([$nome, $descricao, $preco, $imagem, $categoria]);
+        return $stmt->execute([
+            ':nome' => $dados['nome'],
+            ':descricao' => $dados['descricao'],
+            ':preco' => $dados['preco'],
+            ':categoria' => $dados['categoria'],
+            ':imagem' => $dados['imagem']
+        ]);
     }
 
     /**
-     * Edita os dados de um prato existente
+     * Edita os dados de um prato existente.
      * @param int $id
      * @param string $nome
      * @param string $descricao
@@ -54,7 +57,7 @@ class Prato {
     }
 
     /**
-     * Exclui um prato pelo ID
+     * Exclui um prato com base no ID.
      * @param int $id
      * @return bool
      */
@@ -65,7 +68,7 @@ class Prato {
     }
 
     /**
-     * Busca um prato específico pelo ID
+     * Busca um prato pelo ID.
      * @param int $id
      * @return array|null
      */
@@ -77,7 +80,7 @@ class Prato {
     }
 
     /**
-     * Busca múltiplos pratos por array de IDs
+     * Busca múltiplos pratos por um array de IDs.
      * @param array $ids
      * @return array
      */

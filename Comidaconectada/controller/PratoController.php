@@ -3,15 +3,14 @@ require_once __DIR__ . '/../model/Prato.php';
 
 class PratoController
 {
-
-    // Exibe o painel administrativo com todos os pratos
+    // Mostra o painel admin com todos os pratos
     public static function admin()
     {
         $pratos = Prato::listarTodos();
         include __DIR__ . '/../view/admin.view.php';
     }
 
-    // Exibe o formulário para editar um prato existente
+    // Mostra o formulário para editar prato
     public static function formularioEdicao()
     {
         if (!isset($_GET['id'])) {
@@ -30,24 +29,23 @@ class PratoController
         include __DIR__ . '/../view/editar.view.php';
     }
 
-    // Exibe o formulário para adicionar um novo prato
+    // Mostra o formulário para adicionar prato
     public static function formularioAdicionar()
     {
-        // Apenas inclui a view do formulário de adicionar prato
         include __DIR__ . '/../view/adicionar.view.php';
     }
 
-    // Salva um novo prato no banco de dados
+    // Salva novo prato no banco
     public static function salvar()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nome = $_POST['nome'] ?? '';
             $descricao = $_POST['descricao'] ?? '';
             $preco = floatval($_POST['preco'] ?? 0);
-            $categoria = $_POST['categoria'] ?? ''; // Categoria do prato
+            $categoria = $_POST['categoria'] ?? '';
             $imagem = null;
 
-            // Upload da imagem, se enviada
+            // Upload da imagem, se houver
             if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
                 $tmpName = $_FILES['imagem']['tmp_name'];
                 $originalName = basename($_FILES['imagem']['name']);
@@ -63,16 +61,24 @@ class PratoController
                 }
             }
 
-            // Salva o prato no banco
-            Prato::adicionar($nome, $descricao, $preco, $imagem, $categoria);
+            // Importante: seu model Prato não tem método estático 'adicionar', 
+            // mas sim o método não estático 'inserir' que espera um array.
+            $prato = new Prato();
+            $dados = [
+                'nome' => $nome,
+                'descricao' => $descricao,
+                'preco' => $preco,
+                'categoria' => $categoria,
+                'imagem' => $imagem
+            ];
+            $prato->inserir($dados);
         }
 
-        // Redireciona para o painel admin após salvar
         header('Location: ?rota=admin');
         exit;
     }
 
-    // Exclui um prato pelo ID
+    // Exclui prato e sua imagem
     public static function excluir()
     {
         if (!isset($_GET['id'])) {
@@ -83,7 +89,6 @@ class PratoController
         $id = intval($_GET['id']);
         $prato = Prato::buscarPorId($id);
 
-        // Remove imagem associada, se existir
         if ($prato && $prato['imagem']) {
             $caminhoImagem = __DIR__ . '/../public/imagens/' . $prato['imagem'];
             if (file_exists($caminhoImagem)) {
@@ -93,12 +98,11 @@ class PratoController
 
         Prato::excluir($id);
 
-        // Redireciona para o painel admin após exclusão
         header('Location: ?rota=admin');
         exit;
     }
 
-    // Edita os dados de um prato existente
+    // Edita prato existente
     public static function editar()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -106,10 +110,9 @@ class PratoController
             $nome = $_POST['nome'] ?? '';
             $descricao = $_POST['descricao'] ?? '';
             $preco = floatval($_POST['preco'] ?? 0);
-            $categoria = $_POST['categoria'] ?? ''; // Categoria do prato
+            $categoria = $_POST['categoria'] ?? '';
             $imagem = null;
 
-            // Verifica se nova imagem foi enviada para substituir a antiga
             if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
                 $tmpName = $_FILES['imagem']['tmp_name'];
                 $originalName = basename($_FILES['imagem']['name']);
@@ -122,7 +125,7 @@ class PratoController
                     if (move_uploaded_file($tmpName, $destino)) {
                         $imagem = $novoNome;
 
-                        // Remove a imagem antiga do prato, se existir
+                        // Remove a imagem antiga, se existir
                         $pratoAntigo = Prato::buscarPorId($id);
                         if ($pratoAntigo && $pratoAntigo['imagem']) {
                             $caminhoImagemAntiga = __DIR__ . '/../public/imagens/' . $pratoAntigo['imagem'];
@@ -134,7 +137,7 @@ class PratoController
                 }
             }
 
-            // Atualiza o prato no banco com ou sem nova imagem
+            // Atualiza prato com ou sem imagem nova
             if ($imagem) {
                 Prato::editar($id, $nome, $descricao, $preco, $categoria, $imagem);
             } else {
@@ -142,12 +145,11 @@ class PratoController
             }
         }
 
-        // Redireciona para o painel admin após edição
         header('Location: ?rota=admin');
         exit;
     }
 
-    // Lista os pratos para o público (cardápio)
+    // Lista pratos para público (cardápio)
     public static function listar()
     {
         $pratos = Prato::listarTodos();

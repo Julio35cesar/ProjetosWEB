@@ -1,32 +1,32 @@
 <?php
 session_start();
 
-// Requisições dos arquivos principais
+// Inclui os arquivos principais dos models
 require_once 'model/Usuario.php';
 require_once 'model/Prato.php';
 require_once 'model/Pedido.php';
 require_once 'model/ItemPedido.php';
 
+// Inclui os controllers do sistema
 require_once 'controller/PratoController.php';
 require_once 'controller/LoginController.php';
 require_once 'controller/CadastroController.php';
 require_once 'controller/CarrinhoController.php';
 require_once 'controller/AtualizarCarrinhoController.php';
 require_once 'controller/AdminController.php';
-require_once 'controller/PedidoController.php'; // <-- Certifique-se de ter isso incluído
+require_once 'controller/PedidoController.php';
+require_once 'controller/AdicionarPratoController.php'; // Controller para adicionar pratos
 
-// Define a rota atual (padrão: 'lista')
+// Obtém a rota da URL, padrão para 'lista' se não existir
 $rota = $_GET['rota'] ?? 'lista';
 
 // Lista de rotas válidas do sistema
 $rotasValidas = [
-    'adicionar',
     'lista',
     'admin',
-    'salvar',
+    'adicionar',
     'excluir',
     'formEditar',
-    'formAdicionar',
     'editar',
     'login',
     'logout',
@@ -34,44 +34,43 @@ $rotasValidas = [
     'adicionarCarrinho',
     'carrinho',
     'removerCarrinho',
-    'atualizar_carrinho',     // <-- Corrigido nome da rota
+    'atualizar_carrinho',
     'finalizar_pedido',
     'meus_pedidos',
     'pedidos_admin',
     'responder_pedido'
 ];
 
-// Redireciona para a página inicial se a rota for inválida
+// Se a rota não for válida, redireciona para a lista pública de pratos
 if (!in_array($rota, $rotasValidas)) {
     header('Location: ?rota=lista');
     exit;
 }
 
-// Rotas que exigem autenticação de administrador
+// Rotas que precisam de autenticação de administrador
 $rotasAdmin = [
     'adicionar',
     'admin',
-    'salvar',
     'excluir',
     'editar',
     'formEditar',
-    'formAdicionar',
     'pedidos_admin',
     'responder_pedido'
 ];
 
-// Protege rotas administrativas
+// Proteção das rotas administrativas
 if (in_array($rota, $rotasAdmin)) {
+    // Verifica se usuário está logado e se é admin
     if (!isset($_SESSION['usuario']) || ($_SESSION['tipo'] ?? '') !== 'admin') {
         header('Location: ?rota=login');
         exit;
     }
 }
 
-// Define o header UTF-8
+// Define o cabeçalho para UTF-8
 header('Content-Type: text/html; charset=utf-8');
 
-// Roteador de ações
+// Roteador principal que chama o controller conforme a rota
 switch ($rota) {
     case 'lista':
         PratoController::listar();
@@ -81,12 +80,10 @@ switch ($rota) {
         PratoController::admin();
         break;
 
-    case 'formAdicionar':
-        PratoController::formularioAdicionar();
-        break;
-
-    case 'salvar':
-        PratoController::salvar();
+    case 'adicionar':
+        // Instancia controller para adicionar prato e chama index
+        $controller = new AdicionarPratoController();
+        $controller->index();
         break;
 
     case 'excluir':
@@ -154,6 +151,6 @@ switch ($rota) {
         break;
 
     default:
-        echo "Página não encontrada.";
+        echo "<h1>Página não encontrada.</h1>";
         break;
 }

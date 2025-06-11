@@ -11,8 +11,14 @@
     <div class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md">
         <h1 class="text-3xl font-bold text-gray-800 mb-6">Adicionar Novo Prato</h1>
 
-        <form action="?rota=salvar" method="POST" enctype="multipart/form-data" class="space-y-5">
-            <!-- Nome -->
+        <?php if (!empty($msg)): ?>
+            <div class="mb-6 px-4 py-3 rounded <?= isset($erro) && $erro ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800' ?>">
+                <?= htmlspecialchars($msg) ?>
+            </div>
+        <?php endif; ?>
+
+        <form  method="POST" enctype="multipart/form-data" class="space-y-5">
+            
             <div>
                 <label for="nome" class="block font-semibold text-gray-700 mb-1">Nome do Prato:</label>
                 <input
@@ -21,10 +27,10 @@
                     name="nome"
                     required
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    value="<?= isset($_POST['nome']) ? htmlspecialchars($_POST['nome']) : '' ?>"
                 />
             </div>
 
-            <!-- Descrição -->
             <div>
                 <label for="descricao" class="block font-semibold text-gray-700 mb-1">Descrição:</label>
                 <textarea
@@ -33,10 +39,9 @@
                     rows="3"
                     required
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                ></textarea>
+                ><?= isset($_POST['descricao']) ? htmlspecialchars($_POST['descricao']) : '' ?></textarea>
             </div>
 
-            <!-- Preço -->
             <div>
                 <label for="preco" class="block font-semibold text-gray-700 mb-1">Preço (R$):</label>
                 <input
@@ -47,10 +52,10 @@
                     name="preco"
                     required
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    value="<?= isset($_POST['preco']) ? htmlspecialchars($_POST['preco']) : '' ?>"
                 />
             </div>
 
-            <!-- Categoria -->
             <div>
                 <label for="categoria" class="block font-semibold text-gray-700 mb-1">Categoria:</label>
                 <select
@@ -60,15 +65,16 @@
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                     <option value="">Selecione</option>
-                    <option value="Entrada">Entrada</option>
-                    <option value="Prato">Prato</option>
-                    <option value="Sobremesa">Sobremesa</option>
-                    <option value="Bebida">Bebida</option>
-                    <option value="vegano">vegano</option>
+                    <?php
+                    $categorias = ['Entrada', 'Prato', 'Sobremesa', 'Bebida', 'Vegano'];
+                    $selectedCat = $_POST['categoria'] ?? '';
+                    foreach ($categorias as $cat):
+                    ?>
+                        <option value="<?= htmlspecialchars($cat) ?>" <?= $selectedCat === $cat ? 'selected' : '' ?>><?= htmlspecialchars($cat) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
-            <!-- Imagem -->
             <div>
                 <label for="imagem" class="block font-semibold text-gray-700 mb-1">Imagem do Prato:</label>
                 <input  
@@ -80,7 +86,6 @@
                 />
             </div>
 
-            <!-- Botões -->
             <div class="flex items-center justify-between">
                 <button
                     type="submit"
